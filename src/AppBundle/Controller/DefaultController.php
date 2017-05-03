@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -17,7 +18,24 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('default/index.html.twig');
+        $trainingSet = [];
+
+        $finder = new Finder();
+        $finder->files()->name('*.png')->in($this->get('neural_network')->trainDir);
+        $finder->sort(function ($a, $b) {
+            /** @var \SplFileInfo $a */
+            /** @var \SplFileInfo $b */
+            return $b->getMTime() - $a->getMTime();
+        });
+
+        foreach ($finder as $file) {
+            $smile = (bool) substr_count($file->getRealPath(), '.smile.');
+            $trainingSet[] = [$file->getRelativePathname(), (int) $smile];
+        }
+
+        return $this->render('default/index.html.twig', [
+            'trainingSet' => $trainingSet
+        ]);
     }
 
     /**
@@ -41,7 +59,7 @@ class DefaultController extends Controller
                 return new RedirectResponse($this->generateUrl('decide', ['image' => $filename]));
             } else {
                 file_put_contents($this->get('neural_network')->trainDir . $filename, $image);
-                $this->addFlash('success', 'Dein Bild wurde zum Trainingsset "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
+                $this->addFlash('success', 'Dein Bild wurde zu den Trainingsdaten "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
                 return new RedirectResponse($this->generateUrl('homepage'));
             }
         }
@@ -88,7 +106,7 @@ class DefaultController extends Controller
             $fs->copy($testDir . $image, $trainDir . str_replace('unknown', $class, $image));
         }
 
-        $this->addFlash('success', 'Dein Bild wurde zum Trainingsset "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
+        $this->addFlash('success', 'Dein Bild wurde zu den Trainingsdaten "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
 
         return new RedirectResponse($this->generateUrl('homepage'));
     }

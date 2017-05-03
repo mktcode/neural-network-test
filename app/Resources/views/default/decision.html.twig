@@ -4,14 +4,28 @@
     <div style="text-align: center;">
         <img src="/data/test/{{ image }}" alt=""/><br>
         <br>
-        Der Smiley ist mit <br>
-        <br>
-        <b style="font-size: 20px;">{{ (max(decision[0] * 100, 0))|number_format(2, ',', '.') }} %</b><br>
-        <br>
-        Wahrscheinlichkeit fröhlich!<br>
-        <br>
-        <a href="{{ path('add_to_training', {'image': image, class: 'sad'}) }}">{{ decision[0] > 0.5 ? 'Falsch' : 'Richtig' }}!</a>
-        <a href="{{ path('add_to_training', {'image': image, class: 'smile'}) }}">{{ decision[0] > 0.5 ? 'Richtig' : 'Falsch' }}!</a>
-        <a href="{{ path('homepage') }}">zurück</a>
+        <h2 class="uk-margin-bottom-remove">
+            Der Smiley ist vermutlich <b>{{ decision[0] > 0.5 ? 'fröhlich' : 'traurig' }}</b>!
+        </h2>
+        <h4 class="uk-text-muted uk-margin-top-remove">
+            Die KI meint: <b>{{ (max(decision[0] * 100, 0))|number_format(2, ',', '.') }} % fröhlich</b>
+        </h4>
+
+        <div class="uk-margin-top uk-margin-bottom">
+            <a href="{{ path('add_to_training', {'image': image, class: decision[0] > 0.5 ? 'smile' : 'sad'}) }}" class="uk-button uk-button-success">
+                <i class="uk-icon-check"></i>
+                Richtig!
+            </a>
+            <a href="{{ path('add_to_training', {'image': image, class: decision[0] > 0.5 ? 'sad' : 'smile'}) }}" class="uk-button uk-button-danger">
+                <i class="uk-icon-times"></i>
+                Falsch!
+            </a><br>
+            <span class="uk-text-muted">Dadurch lernt die KI.</span>
+        </div>
+
+        <a href="{{ path('homepage') }}" class="uk-button">
+            <i class="uk-icon-angle-left"></i>
+            zurück
+        </a>
     </div>
 {% endblock %}

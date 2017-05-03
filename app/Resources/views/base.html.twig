@@ -5,16 +5,20 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendor/uikit/css/uikit.min.css') }}" />
     </head>
     <body>
-        <div style="text-align: center; color: green;">
+        <div class="uk-container uk-container-center">
             {% for message in app.session.flashbag.get('success') %}
-                {{ message }}
+                <div class="uk-alert uk-alert-success uk-text-center">
+                    {{ message }}
+                </div>
             {% endfor %}
         </div>
         {% block body %}{% endblock %}
         {% block javascripts %}
             <script src="{{ asset('assets/vendor/jquery/dist/jquery.js') }}"></script>
+            <script src="{{ asset('assets/vendor/uikit/js/uikit.min.js') }}"></script>
             <script src="{{ asset('assets/js/draw.js') }}"></script>
         {% endblock %}
     </body>
