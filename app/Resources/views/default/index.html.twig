@@ -12,7 +12,7 @@
             <input type="hidden" name="smiley" id="smiley-input"/>
             <div class="uk-margin-top" data-uk-margin>
                 Ist der Smiley fröhlich oder traurig?<br>
-                <button name="submit" value="unknown" class="uk-button uk-button-large uk-button-success">
+                <button name="submit" value="unknown" id="ki-button" class="uk-button uk-button-large uk-button-success">
                     <i class="uk-icon-spinner"></i>
                     Die KI entscheiden lassen!
                 </button>
@@ -54,6 +54,7 @@
             $('#smiley').drawToCanvas({zoom: 1});
 
             $('#smiley-form').submit(function () {
+                $(this).find('button > .uk-icon-spinner').addClass('uk-icon-spin');
                 var smileyCanvas = document.getElementById('smiley');
                 $('#smiley-input').val(smileyCanvas.toDataURL());
             });
