@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div style="text-align: center;">
+        <img src="/data/test/{{ image }}" alt=""/><br>
+        <br>
+        Der Smiley ist mit <br>
+        <br>
+        <b style="font-size: 20px;">{{ (max(decision[0] * 100, 0))|number_format(2, ',', '.') }} %</b><br>
+        <br>
+        Wahrscheinlichkeit fröhlich!<br>
+        <br>
+        <a href="{{ path('add_to_training', {'image': image, class: 'sad'}) }}">{{ decision[0] > 0.5 ? 'Falsch' : 'Richtig' }}!</a>
+        <a href="{{ path('add_to_training', {'image': image, class: 'smile'}) }}">{{ decision[0] > 0.5 ? 'Richtig' : 'Falsch' }}!</a>
+        <a href="{{ path('homepage') }}">zurück</a>
+    </div>
+{% endblock %}
