@@ -1,0 +1,9 @@
+{
+  "name": "nn",
+  "authors": [
+    "mktcode <kontakt@markus-kottlaender.de>"
+  ],
+  "dependencies": {
+    "jquery": "^3.2.1"
+  }
+}
