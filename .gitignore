@@ -2,6 +2,9 @@
 /build/
 /phpunit.xml
 /var/*
+!/var/brains
+/var/brains/*
+!var/brains/.gitkeep
 !/var/cache
 /var/cache/*
 !var/cache/.gitkeep
