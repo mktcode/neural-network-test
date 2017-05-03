@@ -1,8 +1,8 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div style="text-align: center;">
-        <img src="/data/test/{{ image }}" alt=""/><br>
+    <div style="text-align: center; margin-top: 50px;">
+        <img src="/data/test/{{ image }}" alt="" style="border: solid 7px #000; border-radius: 50%;"/><br>
         <br>
         <h2 class="uk-margin-bottom-remove">
             Der Smiley ist vermutlich <b>{{ decision[0] > 0.5 ? 'fröhlich' : 'traurig' }}</b>!
