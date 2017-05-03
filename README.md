@@ -1,4 +1,5 @@
-nn
-==
+# Smiley Recognition Neural Network
 
-A Symfony project created on May 1, 2017, 3:27 pm.
+Just an experiment with neural networks...
+
+Uses: [FANN](php.net/manual/en/book.fann.php)
