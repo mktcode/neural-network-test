@@ -15,7 +15,7 @@
         <img src="/data/test/{{ image }}" alt="" style="border: solid 7px #000; border-radius: 50%;" class="uk-margin-top"/><br>
         <br>
         <h2 class="uk-margin-bottom-remove">
-            Der Smiley ist vermutlich <b>{{ decision[0] > 0.5 ? 'fröhlich' : 'traurig' }}</b>!
+            Der Smiley ist <b>{{ decision[0] > 0.5 ? 'fröhlich' : 'traurig' }}</b>!
         </h2>
         <h4 class="uk-text-muted uk-margin-top-remove">
             Die KI meint: <b>{{ (max(decision[0] * 100, 0))|number_format(2, ',', '.') }} % fröhlich</b>
