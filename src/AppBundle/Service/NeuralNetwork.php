@@ -28,27 +28,31 @@ class NeuralNetwork
     public function createBrain($name)
     {
         // network
-        $numberOfInputs = count($this->data[0][0]);
-        $numberOfOutputs = count($this->data[0][1]);
-        $layers = [$numberOfInputs, 50, 100, 50, $numberOfOutputs];
-        $n = fann_create_standard_array(count($layers), $layers);
+        if (count($this->data)) {
+            $numberOfInputs = count($this->data[0][0]);
+            $numberOfOutputs = count($this->data[0][1]);
+            $layers = [$numberOfInputs, 50, 100, 50, $numberOfOutputs];
+            $n = fann_create_standard_array(count($layers), $layers);
 
-        // training
-        $maxEpochs = 5000000;
-        $epochsBetweenReports = 1000;
-        $desiredError = 0.0001;
-        $training = fann_create_train_from_callback(count($this->data), $numberOfInputs, $numberOfOutputs, [$this, 'createTrainCallback']);
+            // training
+            $maxEpochs = 5000000;
+            $epochsBetweenReports = 1000;
+            $desiredError = 0.0001;
+            $training = fann_create_train_from_callback(count($this->data), $numberOfInputs, $numberOfOutputs, [$this, 'createTrainCallback']);
 
-        fann_set_activation_function_hidden($n, FANN_SIGMOID_SYMMETRIC);
-        fann_set_activation_function_output($n, FANN_SIGMOID_SYMMETRIC);
-        fann_train_on_data($n, $training, $maxEpochs, $epochsBetweenReports, $desiredError);
+            fann_set_activation_function_hidden($n, FANN_SIGMOID_SYMMETRIC);
+            fann_set_activation_function_output($n, FANN_SIGMOID_SYMMETRIC);
+            fann_train_on_data($n, $training, $maxEpochs, $epochsBetweenReports, $desiredError);
 
-        // save
-        $brainFile = $this->kernelRootDir . '/../var/brains/' . $name . '.brain';
-        fann_save($n, $brainFile);
-        fann_destroy($n);
+            // save
+            $brainFile = $this->kernelRootDir . '/../var/brains/' . $name . '.brain';
+            fann_save($n, $brainFile);
+            fann_destroy($n);
 
-        return new Brain($brainFile);
+            return new Brain($brainFile);
+        }
+
+        return null;
     }
 
     function createTrainCallback($numData) {

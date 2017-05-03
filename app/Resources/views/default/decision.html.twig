@@ -1,8 +1,18 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div style="text-align: center; margin-top: 50px;">
-        <img src="/data/test/{{ image }}" alt="" style="border: solid 7px #000; border-radius: 50%;"/><br>
+    <div class="uk-container uk-container-center uk-text-center">
+        {% if numberOfTrainingSets < 120 %}
+        <div class="uk-alert uk-alert-danger">
+            {% if numberOfTrainingSets < 50 %}
+                Die KI ist noch sehr untrainiert. Ihre Entscheidung wird deshalb meistens falsch sein.
+            {% else %}
+                Die KI ist noch recht untrainiert. Ihre Entscheidung kann deshalb noch häufig falsch sein.
+            {% endif %}
+            <br><br><small>(Die KI hat bisher mit {{ numberOfTrainingSets }} Smileys trainiert.)</small>
+        </div>
+        {% endif %}
+        <img src="/data/test/{{ image }}" alt="" style="border: solid 7px #000; border-radius: 50%;" class="uk-margin-top"/><br>
         <br>
         <h2 class="uk-margin-bottom-remove">
             Der Smiley ist vermutlich <b>{{ decision[0] > 0.5 ? 'fröhlich' : 'traurig' }}</b>!

@@ -78,13 +78,21 @@ class DefaultController extends Controller
     public function decideAction($image)
     {
         $brain = $this->get('neural_network')->createBrain('smiley');
-
         $input = NeuralNetwork::getImagePixels($this->get('neural_network')->testDir . '/' . $image);
-        $decision = $brain->thinkAbout($input);
+
+        $decision = [0.5];
+        if ($brain) {
+            $decision = $brain->thinkAbout($input);
+        }
+
+        $finder = new Finder();
+        $finder->files()->name('*.png')->in($this->get('neural_network')->trainDir);
+        $numberOfTrainingSets = $finder->count();
 
         return $this->render('default/decision.html.twig', [
             'image' => $image,
-            'decision' => $decision
+            'decision' => $decision,
+            'numberOfTrainingSets' => $numberOfTrainingSets
         ]);
     }
 
