@@ -17,4 +17,6 @@
 /web/assets/vendor/
 /web/data/test/
 /web/data/train/
+!/web/data/train/training-sample.smile.png
+!/web/data/train/training-sample.sad.png
 /.idea
