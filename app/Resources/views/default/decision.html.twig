@@ -12,26 +12,28 @@
             <br><br><small>(Die KI hat bisher mit {{ numberOfTrainingSets }} Smileys trainiert.)</small>
         </div>
         {% endif %}
-        <img src="/data/test/{{ image }}" alt="" style="border: solid 7px #000; border-radius: 50%;" class="uk-margin-top"/><br>
+        <img src="/data/{{ dir }}/{{ image }}" alt="" style="border: solid 3px #000; border-radius: 50%;" class="uk-margin-top"/><br>
         <br>
         <h2 class="uk-margin-bottom-remove">
             Der Smiley ist <b>{{ decision[0] > 0.5 ? 'fröhlich' : 'traurig' }}</b>!
         </h2>
         <h4 class="uk-text-muted uk-margin-top-remove">
-            Die KI meint: <b>{{ (max(decision[0] * 100, 0))|number_format(2, ',', '.') }} % fröhlich</b>
+            Die KI meint: <b>{{ (max(decision[0] * 100, 0))|number_format(2, ',', '.') }} %</b> fröhlich
         </h4>
 
-        <div class="uk-margin-top uk-margin-bottom">
-            <a href="{{ path('add_to_training', {'image': image, class: decision[0] > 0.5 ? 'smile' : 'sad'}) }}" class="uk-button uk-button-success">
-                <i class="uk-icon-check"></i>
-                Richtig!
-            </a>
-            <a href="{{ path('add_to_training', {'image': image, class: decision[0] > 0.5 ? 'sad' : 'smile'}) }}" class="uk-button uk-button-danger">
-                <i class="uk-icon-times"></i>
-                Falsch!
-            </a><br>
-            <span class="uk-text-muted">Dadurch lernt die KI.</span>
-        </div>
+        {% if dir == 'test' %}
+            <div class="uk-margin-top uk-margin-bottom">
+                <a href="{{ path('add_to_training', {'image': image, class: decision[0] > 0.5 ? 'smile' : 'sad'}) }}" class="uk-button uk-button-success">
+                    <i class="uk-icon-check"></i>
+                    Richtig!
+                </a>
+                <a href="{{ path('add_to_training', {'image': image, class: decision[0] > 0.5 ? 'sad' : 'smile'}) }}" class="uk-button uk-button-danger">
+                    <i class="uk-icon-times"></i>
+                    Falsch!
+                </a><br>
+                <span class="uk-text-muted">Dadurch lernt die KI.</span>
+            </div>
+        {% endif %}
 
         <a href="{{ path('homepage') }}" class="uk-button">
             <i class="uk-icon-angle-left"></i>

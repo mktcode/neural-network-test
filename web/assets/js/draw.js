@@ -15,7 +15,7 @@
 
         var context = canvas.getContext('2d');
         context.scale(settings.zoom, settings.zoom);
-        context.lineWidth = 10;
+        context.lineWidth = 4;
         context.lineJoin = 'round';
 
 
@@ -51,7 +51,7 @@
             this.mouseup = function (e) {
                 if (tool.started) {
                     tool.mousemove(e);
-                    context.fillRect(e._x - 5, e._y - 5, 10, 10 );
+                    context.fillRect(e._x - 3, e._y - 3, 6, 6);
                     tool.started = false;
                 }
             };

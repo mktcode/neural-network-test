@@ -2,7 +2,7 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Service\NeuralNetwork;
+use AppBundle\Service\Brain;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -21,7 +21,7 @@ class DefaultController extends Controller
         $trainingSet = [];
 
         $finder = new Finder();
-        $finder->files()->name('*.png')->in($this->get('neural_network')->trainDir);
+        $finder->files()->name('*.png')->in($this->get('brain')->trainDir);
         $finder->sort(function ($a, $b) {
             /** @var \SplFileInfo $a */
             /** @var \SplFileInfo $b */
@@ -44,56 +44,79 @@ class DefaultController extends Controller
      * @param Request $request
      * @return RedirectResponse
      */
-    public function saveImages(Request $request)
+    public function saveImageAction(Request $request)
     {
-        if ($request->request->get('smiley')) {
+        $smiley = $request->request->get('smiley');
+
+        if ($smiley) {
             $class = $request->request->get('submit');
             $filename = md5(uniqid() . time()) . '.' . $class . '.png';
 
-            $image = str_replace('data:image/png;base64,', '', $request->request->get('smiley'));
+            $image = str_replace('data:image/png;base64,', '', $smiley);
             $image = str_replace(' ', '+', $image);
             $image = base64_decode($image);
 
+            $brain = $this->get('brain');
+
             if ($class == 'unknown') {
-                file_put_contents($this->get('neural_network')->testDir . $filename, $image);
-                return new RedirectResponse($this->generateUrl('decide', ['image' => $filename]));
-            } else {
-                file_put_contents($this->get('neural_network')->trainDir . $filename, $image);
+                file_put_contents($brain->testDir . '/' . $filename, $image);
+                return new RedirectResponse($this->generateUrl('decide', ['image' => $filename, 'dir' => 'test']));
+            } elseif (in_array($class, ['smile', 'sad'])) {
+                file_put_contents($brain->trainDir . '/' . $filename, $image);
                 $this->addFlash('success', 'Dein Bild wurde zu den Trainingsdaten "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
-                return new RedirectResponse($this->generateUrl('homepage'));
+                return new RedirectResponse($this->generateUrl('train'));
             }
         }
 
-        $this->addFlash('error', 'Du hast nichts gemalt...');
+        $this->addFlash('error', 'Es wurde kein Smiley übertragen. :(');
 
         return new RedirectResponse($this->generateUrl('homepage'));
     }
 
     /**
-     * @Route("/decide/{image}", name="decide")
+     * @Route("/decide/{dir}/{image}", name="decide")
      *
      * @param $image
+     * @param $dir
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function decideAction($image)
+    public function decideAction($image, $dir)
     {
-        $brain = $this->get('neural_network')->createBrain('smiley');
-        $input = NeuralNetwork::getImagePixels($this->get('neural_network')->testDir . '/' . $image);
-
-        $decision = [0.5];
-        if ($brain) {
-            $decision = $brain->thinkAbout($input);
-        }
+        $brain = $this->get('brain');
+        $brain->create('smiley');
+        $decision = $brain->think(self::getImagePixels($brain->dataDir . '/' . $dir . '/' . $image));
 
         $finder = new Finder();
-        $finder->files()->name('*.png')->in($this->get('neural_network')->trainDir);
+        $finder->files()->name('*.png')->in($brain->trainDir);
         $numberOfTrainingSets = $finder->count();
 
         return $this->render('default/decision.html.twig', [
             'image' => $image,
+            'dir' => $dir,
             'decision' => $decision,
             'numberOfTrainingSets' => $numberOfTrainingSets
         ]);
+    }
+
+    /**
+     * @Route("/train", name="train")
+     */
+    public function trainAction()
+    {
+        $brain = $this->get('brain');
+        $brain->create('smiley');
+
+        $data = [];
+        foreach (glob($brain->trainDir . '/*.png') as $key => $path) {
+            $smile = (bool) substr_count($path, '.smile.');
+            $data[] = [self::getImagePixels($path), [(int) $smile]];
+        }
+
+        $brain->createTraining($data);
+        $brain->train();
+        $brain->save();
+
+        return new RedirectResponse($this->generateUrl('homepage'));
     }
 
     /**
@@ -103,19 +126,39 @@ class DefaultController extends Controller
      * @param $class
      * @return RedirectResponse
      */
-    public function addToTraining($image, $class)
+    public function addToTrainingAction($image, $class)
     {
         $fs = new Filesystem();
+        $brain = $this->get('brain');
 
-        $testDir = $this->get('neural_network')->testDir . '/';
-        $trainDir = $this->get('neural_network')->trainDir . '/';
+        // copy image and train
+        $testImagePath = $brain->testDir . '/' . $image;
+        if ($fs->exists($testImagePath) && in_array($class, ['smile', 'sad'])) {
+            $fs->copy($testImagePath, $brain->trainDir . '/' . str_replace('unknown', $class, $image));
+            $fs->remove($testImagePath);
 
-        if ($fs->exists($testDir . $image) && in_array($class, ['smile', 'sad'])) {
-            $fs->copy($testDir . $image, $trainDir . str_replace('unknown', $class, $image));
+            return new RedirectResponse($this->generateUrl('train'));
         }
 
-        $this->addFlash('success', 'Dein Bild wurde zu den Trainingsdaten "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
-
         return new RedirectResponse($this->generateUrl('homepage'));
+    }
+
+    static function getImagePixels($imagePath)
+    {
+        $pixelColors = [];
+        $image = imagecreatefrompng($imagePath);
+
+        if ($image) {
+            $imageWidth = imagesx($image);
+            $imageHeight = imagesy($image);
+
+            for ($y = 0; $y < $imageHeight; $y++) {
+                for ($x = 0; $x < $imageWidth; $x++) {
+                    $pixelColors[] = imagecolorat($image, $x, $y) ? 0 : 1;
+                }
+            }
+        }
+
+        return $pixelColors;
     }
 }

@@ -1,4 +1,4 @@
 services:
-    neural_network:
-        class: AppBundle\Service\NeuralNetwork
-        arguments: ['%kernel.root_dir%']
+    brain:
+        class: AppBundle\Service\Brain
+        arguments: ['%brain_input_neurons%', '%brain_hidden_neurons%', '%brain_output_neurons%', '%kernel.root_dir%']

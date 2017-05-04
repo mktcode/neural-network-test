@@ -17,3 +17,7 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
+
+    brain_input_neurons: 1
+    brain_hidden_neurons: [200, 50]
+    brain_output_neurons: 1
