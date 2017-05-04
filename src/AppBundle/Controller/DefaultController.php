@@ -63,7 +63,6 @@ class DefaultController extends Controller
                 return new RedirectResponse($this->generateUrl('decide', ['image' => $filename, 'dir' => 'test']));
             } elseif (in_array($class, ['smile', 'sad'])) {
                 file_put_contents($brain->trainDir . '/' . $filename, $image);
-                $this->addFlash('success', 'Dein Bild wurde zu den Trainingsdaten "' . ($class == 'smile' ? 'fröhlich' : 'traurig') . '" hinzugefügt.');
                 return new RedirectResponse($this->generateUrl('train'));
             }
         }
@@ -115,6 +114,8 @@ class DefaultController extends Controller
         $brain->createTraining($data);
         $brain->train();
         $brain->save();
+
+        $this->addFlash('success', 'Die KI sagt: Danke! Wieder was gelernt... :)');
 
         return new RedirectResponse($this->generateUrl('homepage'));
     }
