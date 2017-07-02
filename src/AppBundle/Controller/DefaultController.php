@@ -67,7 +67,7 @@ class DefaultController extends Controller
             }
         }
 
-        $this->addFlash('error', 'Es wurde kein Smiley übertragen. :(');
+        $this->addFlash('error', 'No smiley transmitted. :(');
 
         return new RedirectResponse($this->generateUrl('homepage'));
     }
@@ -115,7 +115,7 @@ class DefaultController extends Controller
         $brain->train();
         $brain->save();
 
-        $this->addFlash('success', 'Die KI sagt: Danke! Wieder was gelernt... :)');
+        $this->addFlash('success', 'AI says: Thank you! Learning never stops... :)');
 
         return new RedirectResponse($this->generateUrl('homepage'));
     }
